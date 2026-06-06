@@ -1,0 +1,111 @@
+message,intent
+what is the queue like,wait_time
+greetings,greeting
+hii,greeting
+how long should I wait,wait_time
+diet food please,diet_filter
+seafood options,diet_filter
+what is popular,recommendation
+veg options,diet_filter
+get me the salmon,order
+howdy,greeting
+busy tonight,wait_time
+time for delivery to table,wait_time
+hi,greeting
+how many minutes,wait_time
+hey there,greeting
+how long is the wait,wait_time
+low calorie options,diet_filter
+how much time will it take,wait_time
+I want to buy the cheesecake,order
+most ordered dish,recommendation
+what's up,greeting
+what pairs well with wine,recommendation
+vegan options,diet_filter
+what do you recommend,recommendation
+recommend a dish,recommendation
+chef special today,recommendation
+no meat please,diet_filter
+is the kitchen busy,wait_time
+hello can you help,greeting
+something for two people,recommendation
+when will it be ready,wait_time
+place my order,order
+hey lume,greeting
+what is trending,recommendation
+healthy dishes,diet_filter
+dishes without garlic,diet_filter
+give me a suggestion,recommendation
+I want something non-veg,recommendation
+good morning,greeting
+gluten free options,diet_filter
+jain food available,diet_filter
+healthy option please,recommendation
+recommend a starter,recommendation
+good afternoon,greeting
+I want two burgers,order
+I want something filling,recommendation
+show me non-veg,diet_filter
+hi there,greeting
+what is your signature dish,recommendation
+no egg dishes,diet_filter
+when will my food arrive,wait_time
+something light please,recommendation
+hiya,greeting
+kitchen busy right now,wait_time
+order now,order
+suggest a main course,recommendation
+hello there,greeting
+checkout,order
+pure veg,diet_filter
+hey assistant,greeting
+how long does it take,wait_time
+best dish today,recommendation
+namaste,greeting
+hi lume,greeting
+something spicy veg under 300,recommendation
+any rush today,wait_time
+good evening,greeting
+get me a starter,order
+can I order the burger,order
+I want to order,order
+dairy free items,diet_filter
+show me veg items,diet_filter
+add salmon to my order,order
+I am vegetarian,diet_filter
+current wait time,wait_time
+any dishes without onion,diet_filter
+order for table 5,order
+I want to buy,order
+best value dish,recommendation
+no spicy food,diet_filter
+any veg dishes,diet_filter
+I want to place an order,order
+light food please,diet_filter
+how long for my order,wait_time
+suggest something for dinner,recommendation
+submit order,order
+mild options only,diet_filter
+show me healthy options,diet_filter
+place order now,order
+suggest something unique,recommendation
+best seller,recommendation
+I will have the ramen,order
+hello,greeting
+I have nut allergy,diet_filter
+what should I order,recommendation
+hey,greeting
+what's good here,recommendation
+how soon,wait_time
+order the pasta please,order
+estimated time,wait_time
+eta for my order,wait_time
+is there a long wait,wait_time
+add it to my order,order
+suggest something spicy,recommendation
+I am allergic to nuts,diet_filter
+what is the wait time,wait_time
+hi i need help,greeting
+add to cart,order
+nut free dishes,diet_filter
+confirm my order,order

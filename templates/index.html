@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lume | Premium AI Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <a class="brand gradient-text" href="/">Lume</a>
+      <nav class="nav-links nav-center">
+        <a href="/">Discover</a>
+        <a class="active" href="/table/{{ table_id }}">Menu</a>
+        <a href="/assistant/{{ table_id }}">Recommendations</a>
+        <a href="/dashboard">Insights</a>
+      </nav>
+      <div class="nav-actions">
+        <input class="search-input" id="menuSearch" placeholder="Search curated tastes..." type="search">
+        <img class="avatar" alt="User profile" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=80">
+      </div>
+    </div>
+  </header>
+
+  <main class="app-layout">
+    <aside class="side-nav">
+      <div class="side-brand">
+        <strong>Lume</strong>
+        <span>Premium Insights</span>
+      </div>
+      <nav class="side-links">
+        <a href="/"><span class="material-symbols-outlined">home</span><span>Home</span></a>
+        <a href="/assistant/{{ table_id }}"><span class="material-symbols-outlined">smart_toy</span><span>Chat</span></a>
+        <a class="active" href="/table/{{ table_id }}"><span class="material-symbols-outlined">restaurant_menu</span><span>Menu</span></a>
+        <a href="/dashboard"><span class="material-symbols-outlined">monitoring</span><span>Analytics</span></a>
+        <a href="/queue"><span class="material-symbols-outlined">hourglass_empty</span><span>Queue</span></a>
+      </nav>
+      <div class="side-footer">
+        <a class="gradient-button" href="/assistant/{{ table_id }}">Ask AI</a>
+      </div>
+    </aside>
+
+    <section class="content-canvas">
+      <div class="page-heading">
+        <div>
+          <h1>Curated Menu</h1>
+          <p>Intelligent culinary selections analyzed by Lume for table {{ table_id }} and the live kitchen queue.</p>
+        </div>
+        <div class="ai-badge glass-card"><span class="pulse-dot"></span> Live AI optimized</div>
+      </div>
+
+      <div class="filter-card glass-card">
+        <div>
+          <span class="label-caps">ML wait prediction</span>
+          <div style="margin-top:10px;color:var(--text);font-family:var(--font-mono);font-size:28px;font-weight:500">{{ live.predicted_wait }} min</div>
+          <div class="muted">{{ live.active_items }} items currently in active queue</div>
+        </div>
+        <div class="chips" id="categoryChips">
+          <button class="chip active" data-category="all">All Cuisines</button>
+          {% for category in categories %}
+          <button class="chip" data-category="{{ category }}">{{ category|title }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="menu-grid" id="dishGrid">
+        {% for item in menu %}
+        <article class="dish-card glass-card {% if loop.first %}featured{% endif %}" data-category="{{ item.category }}" data-search="{{ item.name }} {{ item.category }} {{ item.tags|join(' ') }} {{ item.description }}">
+          <div class="dish-image">
+            <img src="{{ item.image }}" alt="{{ item.name }}">
+            <span class="rating-pill"><span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1">star</span>{{ "%.1f"|format(4.4 + (item.match_percent / 1000)) }}</span>
+            {% if loop.first %}<span class="signature-pill">Chef's Signature</span>{% endif %}
+          </div>
+          <div class="dish-body">
+            <div class="dish-meta">
+              <div class="dish-name">{{ item.name }}</div>
+              <div class="dish-price">₹{{ item.price }}</div>
+            </div>
+            <p class="dish-desc">{{ item.description }}</p>
+            <div class="tag-row">
+              {% for tag in item.tags[:4] %}
+              <span class="tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+            <div class="dish-footer">
+              <div>
+                <div class="ml-score">{{ item.match_percent }}% AI MATCH</div>
+                <div class="muted" style="font-size:12px">{{ item.reason }}</div>
+              </div>
+              <button class="gradient-button add-button icon-label" data-add='{{ {"item": item.name, "name": item.name, "price": item.price, "image": item.image, "category": item.category}|tojson }}'><span class="material-symbols-outlined">add_shopping_cart</span>Add to cart</button>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <section class="cart-panel glass-card">
+        <div class="page-heading" style="margin-bottom:8px">
+          <div>
+            <h1 style="font-size:32px">Order Cart</h1>
+            <p>Add dishes and place the order with a trained ML wait-time prediction.</p>
+          </div>
+        </div>
+        <div class="cart-list" id="cartList">
+          <div class="muted">Add items to build your order.</div>
+        </div>
+        <div class="cart-total"><span>Total</span><span id="cartTotal">₹0</span></div>
+        <button class="gradient-button add-button" id="placeOrderBtn" disabled>Place Order</button>
+      </section>
+    </section>
+  </main>
+
+  <div class="bottom-cart glass-card" id="bottomCart">
+    <div>
+      <strong id="bottomCartCount">0 items</strong>
+      <div class="muted" id="bottomCartTotal">₹0</div>
+    </div>
+    <button class="gradient-button add-button" id="bottomOrderBtn">Place Order</button>
+  </div>
+
+  <!-- Razorpay Checkout Script -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  
+  <script>window.LUME_TABLE_ID = {{ table_id }};</script>
+  <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+</body>
+</html>

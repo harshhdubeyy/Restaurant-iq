@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lume | Kitchen Queue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <style>
+    /* ── Queue page specific ── */
+    .queue-shell {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    .queue-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .queue-header h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--text);
+      margin: 0 0 4px;
+    }
+
+    .queue-header p {
+      font-size: 14px;
+      color: var(--text-muted, #9898A8);
+      margin: 0;
+    }
+
+    /* ── Order card ── */
+    .order-card {
+      background: var(--surface, #fff);
+      border: 1px solid var(--border, #E8E8F0);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .order-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    }
+
+    .order-card.status-preparing {
+      border-left: 3px solid #4A90E2;
+    }
+
+    .order-card.status-ready {
+      border-left: 3px solid #27AE60;
+    }
+
+    .order-card.status-pending {
+      border-left: 3px solid #F5A623;
+    }
+
+    .order-card.status-completed {
+      border-left: 3px solid #BDC3C7;
+      opacity: 0.65;
+    }
+
+    .order-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .order-id-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .order-id {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--bg, #F5F5FA);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .order-table-badge {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary, #5C5C6E);
+      background: var(--bg, #F5F5FA);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .order-time {
+      font-size: 13px;
+      color: var(--text-muted, #9898A8);
+    }
+
+    .order-meta {
+      font-size: 13px;
+      color: var(--text-secondary, #5C5C6E);
+      margin-bottom: 10px;
+    }
+
+    .order-items-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .order-item-tag {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-secondary, #5C5C6E);
+      background: var(--bg, #F5F5FA);
+      border: 1px solid var(--border, #E8E8F0);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── Right side controls ── */
+    .order-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* ── Status pill ── */
+    .status-pill {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .pill-pending    { background: #FFF3CD; color: #856404; }
+    .pill-preparing  { background: #DBEAFE; color: #1E40AF; }
+    .pill-ready      { background: #D1FAE5; color: #065F46; }
+    .pill-completed  { background: #F3F4F6; color: #6B7280; }
+
+    /* ── Status select ── */
+    .status-select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text);
+      background: var(--surface, #fff);
+      border: 1px solid var(--border, #E8E8F0);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .status-select:hover,
+    .status-select:focus {
+      border-color: var(--accent, #7C6FFF);
+    }
+
+    /* ── ETA chip ── */
+    .eta-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-muted, #9898A8);
+      background: var(--bg, #F5F5FA);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    /* ── View order link ── */
+    .view-order-link {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent, #7C6FFF);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .view-order-link:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      border: 1px dashed var(--border, #E8E8F0);
+      border-radius: 16px;
+    }
+
+    .empty-state .material-symbols-outlined {
+      font-size: 44px;
+      color: var(--text-muted, #9898A8);
+      opacity: 0.5;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 15px;
+      color: var(--text-secondary, #5C5C6E);
+      margin: 0;
+    }
+
+    /* ── Stats bar ── */
+    .queue-stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary, #5C5C6E);
+      background: var(--surface, #fff);
+      border: 1px solid var(--border, #E8E8F0);
+      border-radius: 10px;
+      padding: 6px 14px;
+    }
+
+    .stat-chip strong {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .stat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Auto-refresh indicator ── */
+    .refresh-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted, #9898A8);
+    }
+
+    .refresh-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #27AE60;
+      animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ── Section divider ── */
+    .queue-section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-muted, #9898A8);
+      margin: 24px 0 10px;
+    }
+
+    /* ── Toast notification ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--text, #1A1A1E);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 400;
+      padding: 12px 18px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <a class="brand gradient-text" href="/">Lume</a>
+      <nav class="nav-links nav-center">
+        <a href="/">Discover</a>
+        <a href="/table/5">Menu</a>
+        <a href="/assistant/5">Recommendations</a>
+        <a href="/dashboard">Insights</a>
+      </nav>
+      <div class="nav-actions">
+        <div class="ai-badge glass-card"><span class="pulse-dot"></span> Live queue</div>
+        <img class="avatar" alt="User profile" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80">
+      </div>
+    </div>
+  </header>
+
+  <div class="queue-shell">
+    <div class="queue-header">
+      <div>
+        <h1>Kitchen Queue</h1>
+        <p>Live order pipeline — status updates instantly, page refreshes every 15 seconds.</p>
+      </div>
+      <div class="refresh-badge">
+        <span class="refresh-dot"></span>
+        <span id="refreshLabel">Auto-refreshing</span>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="queue-stats" id="statsBar">
+      <div class="stat-chip">
+        <span class="stat-dot" style="background:#F5A623"></span>
+        <span>Pending: <strong id="countPending">{{ orders | selectattr('status','equalto','Pending') | list | length }}</strong></span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-dot" style="background:#4A90E2"></span>
+        <span>Preparing: <strong id="countPreparing">{{ orders | selectattr('status','equalto','Preparing') | list | length }}</strong></span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-dot" style="background:#27AE60"></span>
+        <span>Ready: <strong id="countReady">{{ orders | selectattr('status','equalto','Ready') | list | length }}</strong></span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-dot" style="background:#BDC3C7"></span>
+        <span>Completed today: <strong id="countCompleted">{{ orders | selectattr('status','equalto','Completed') | list | length }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Queue list rendered server-side first, then hydrated by JS -->
+    <div id="queueList">
+      {% if orders %}
+        {% set active_orders = orders | rejectattr('status','equalto','Completed') | list %}
+        {% set done_orders   = orders | selectattr('status','equalto','Completed') | list %}
+
+        {% if active_orders %}
+        <div class="queue-section-label">Active Orders ({{ active_orders | length }})</div>
+        {% for order in active_orders %}
+        <div class="order-card status-{{ order.status | lower }}" data-order-id="{{ order.id }}">
+          <div class="order-left">
+            <div class="order-id-row">
+              <span class="order-id">#{{ order.id }}</span>
+              <span class="order-table-badge">Table {{ order.table_id }}</span>
+              <span class="order-time">{{ order.time }}</span>
+            </div>
+            <div class="order-meta">ETA: <strong>{{ order.eta }} min</strong></div>
+            <div class="order-items-row">
+              {% for item in order.get("items",[]) %}
+              <span class="order-item-tag">{{ item.name }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="order-right">
+            <span class="status-pill pill-{{ order.status | lower }}">{{ order.status }}</span>
+            <select class="status-select" data-order-id="{{ order.id }}">
+              <option {% if order.status == 'Pending'   %}selected{% endif %}>Pending</option>
+              <option {% if order.status == 'Preparing' %}selected{% endif %}>Preparing</option>
+              <option {% if order.status == 'Ready'     %}selected{% endif %}>Ready</option>
+              <option {% if order.status == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
+            <span class="eta-chip">{{ order.eta }} min</span>
+            <a class="view-order-link" href="/order-status/{{ order.id }}">
+              <span class="material-symbols-outlined" style="font-size:14px">open_in_new</span>Track
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if done_orders %}
+        <div class="queue-section-label" style="margin-top:32px">Completed ({{ done_orders | length }})</div>
+        {% for order in done_orders %}
+        <div class="order-card status-completed" data-order-id="{{ order.id }}">
+          <div class="order-left">
+            <div class="order-id-row">
+              <span class="order-id">#{{ order.id }}</span>
+              <span class="order-table-badge">Table {{ order.table_id }}</span>
+              <span class="order-time">{{ order.time }}</span>
+            </div>
+            <div class="order-items-row">
+              {% for item in order.get("items",[]) %}
+              <span class="order-item-tag">{{ item.name }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="order-right">
+            <span class="status-pill pill-completed">Completed</span>
+            <a class="view-order-link" href="/order-status/{{ order.id }}">
+              <span class="material-symbols-outlined" style="font-size:14px">open_in_new</span>Details
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+      {% else %}
+      <div class="empty-state" id="emptyState">
+        <span class="material-symbols-outlined">hourglass_empty</span>
+        <p>No orders in the queue yet. Orders placed from the menu will appear here.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Toast helper ──────────────────────────────────────────
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    // ── Status change ─────────────────────────────────────────
+    document.addEventListener('change', async e => {
+      if (!e.target.classList.contains('status-select')) return;
+      const sel       = e.target;
+      const orderId   = sel.dataset.orderId;
+      const newStatus = sel.value;
+
+      try {
+        const res = await fetch(`/update-status/${orderId}`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          // Update pill and card class live
+          const card = sel.closest('.order-card');
+          card.className = `order-card status-${newStatus.toLowerCase()}`;
+
+          const pill = card.querySelector('.status-pill');
+          pill.className = `status-pill pill-${newStatus.toLowerCase()}`;
+          pill.textContent = newStatus;
+
+          showToast(`Order #${orderId} → ${newStatus}`);
+          refreshStats();
+        }
+      } catch (err) {
+        showToast('Update failed — check connection');
+      }
+    });
+
+    // ── Refresh stats counts ──────────────────────────────────
+    async function refreshStats() {
+      try {
+        const res    = await fetch('/api/queue-all');
+        const orders = await res.json();
+
+        const count = s => orders.filter(o => o.status === s).length;
+        document.getElementById('countPending').textContent   = count('Pending');
+        document.getElementById('countPreparing').textContent = count('Preparing');
+        document.getElementById('countReady').textContent     = count('Ready');
+        document.getElementById('countCompleted').textContent = count('Completed');
+      } catch (_) {}
+    }
+
+    // ── Full page auto-refresh every 15s ──────────────────────
+    let countdown = 15;
+    const label   = document.getElementById('refreshLabel');
+
+    setInterval(() => {
+      countdown--;
+      label.textContent = `Refreshing in ${countdown}s`;
+      if (countdown <= 0) {
+        window.location.reload();
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lume | AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body style="height:100vh;overflow:hidden;display:flex;flex-direction:column">
+
+  <!-- ── Nav ──────────────────────────────────────────────────────── -->
+  <header class="top-nav" style="flex-shrink:0">
+    <div class="top-nav-inner">
+      <a class="brand gradient-text" href="/">Lume</a>
+      <nav class="nav-links nav-center">
+        <a href="/">Discover</a>
+        <a href="/table/{{ table_id }}">Menu</a>
+        <a class="active" href="/assistant/{{ table_id }}">Recommendations</a>
+        <a href="/dashboard">Insights</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="/table/{{ table_id }}" class="ghost-button" style="padding:7px 14px;font-size:13px">
+          <span class="material-symbols-outlined" style="font-size:16px">restaurant_menu</span>Menu
+        </a>
+        <img class="avatar" alt="User" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80">
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Chat shell ───────────────────────────────────────────────── -->
+  <div class="assistant-shell" style="flex:1;overflow:hidden">
+
+    <!-- Header bar -->
+    <div class="chat-header-bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:grid;place-items:center">
+          <span class="material-symbols-outlined" style="font-size:16px;color:#fff">smart_toy</span>
+        </div>
+        <div>
+          <h1>AI Assistant</h1>
+          <p>Online · powered by Lume</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat window -->
+    <div class="chat-window" id="chatWindow">
+
+      <!-- Initial AI message -->
+      <div class="bubble-row assistant">
+        <div class="bubble-avatar">
+          <span class="material-symbols-outlined" style="font-size:14px">smart_toy</span>
+        </div>
+        <div>
+          <div class="bubble assistant">
+            Hey! I'm your Lume AI assistant. I can recommend dishes, check the current wait time, or help you find something that fits your mood or budget.
+            {% if starter %}
+            <div class="chat-dish-card">
+              <img src="{{ starter.image }}" alt="{{ starter.name }}">
+              <div>
+                <div class="chat-dish-name">{{ starter.name }}</div>
+                <div class="chat-dish-price">₹{{ starter.price }}</div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="suggestion-row">
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">What's popular tonight?</button>
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">Vegetarian options</button>
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">How long is the wait?</button>
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">Something under ₹300</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /chat-window -->
+
+    <!-- Input bar -->
+    <div class="chat-input-bar">
+      <div class="chat-input-row">
+        <textarea
+          class="chat-textarea"
+          id="chatInput"
+          placeholder="Ask about the menu, wait time, or get a recommendation…"
+          rows="1"
+        ></textarea>
+        <button class="send-button" id="sendBtn" disabled aria-label="Send">
+          <span class="material-symbols-outlined">arrow_upward</span>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /assistant-shell -->
+
+  <script>
+    window.LUME_TABLE_ID = {{ table_id | tojson }};
+
+    const chatWindow = document.getElementById('chatWindow');
+    const input      = document.getElementById('chatInput');
+    const sendBtn    = document.getElementById('sendBtn');
+
+    /* ── Input auto-grow + enable send ─────────────────────────── */
+    input.addEventListener('input', () => {
+      sendBtn.disabled = !input.value.trim();
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+    });
+
+    /* Enter = send, Shift+Enter = newline */
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (!sendBtn.disabled) sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    function sendSuggestion(btn) {
+      input.value = btn.textContent.trim();
+      input.dispatchEvent(new Event('input'));
+      sendMessage();
+    }
+
+    /* ── Build bubble DOM ───────────────────────────────────────── */
+    function appendBubble(role, html) {
+      const isUser = role === 'user';
+      const row    = document.createElement('div');
+      row.className = `bubble-row ${role}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'bubble-avatar';
+      avatar.innerHTML = isUser
+        ? '<img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80" alt="You">'
+        : '<span class="material-symbols-outlined" style="font-size:14px">smart_toy</span>';
+
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${role}`;
+      bubble.innerHTML = html;
+
+      if (isUser) {
+        row.appendChild(bubble);
+        row.appendChild(avatar);
+      } else {
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+      }
+
+      chatWindow.appendChild(row);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+      return row;
+    }
+
+    /* ── Typing indicator ───────────────────────────────────────── */
+    function showTyping() {
+      const row    = document.createElement('div');
+      row.className = 'bubble-row assistant';
+      row.id = 'typingRow';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'bubble-avatar';
+      avatar.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px">smart_toy</span>';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble assistant typing-indicator';
+      bubble.innerHTML = '<span></span><span></span><span></span>';
+
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      chatWindow.appendChild(row);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function removeTyping() {
+      const el = document.getElementById('typingRow');
+      if (el) el.remove();
+    }
+
+    /* ── Format AI reply ────────────────────────────────────────── */
+    function formatReply(data) {
+      let html = '';
+      if (data.reply) {
+        html += data.reply.replace(/\n/g, '<br>');
+      }
+      if (Array.isArray(data.items) && data.items.length > 0) {
+        data.items.forEach(item => {
+          html += `
+            <div class="chat-dish-card">
+              ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+              <div>
+                <div class="chat-dish-name">${item.name}</div>
+                <div class="chat-dish-price">₹${item.price}</div>
+              </div>
+            </div>`;
+        });
+      }
+      return html || "I didn't quite catch that — could you rephrase?";
+    }
+
+    /* ── Send message ───────────────────────────────────────────── */
+    async function sendMessage() {
+      const message = input.value.trim();
+      if (!message) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+      sendBtn.disabled = true;
+
+      appendBubble('user', message);
+      showTyping();
+
+      /* Parallel: fetch + minimum 1200ms delay */
+      const [res] = await Promise.all([
+        fetch('/ai-query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, table_id: window.LUME_TABLE_ID })
+        }),
+        new Promise(r => setTimeout(r, 1200))
+      ]);
+
+      let data = {};
+      try { data = await res.json(); } catch (_) { data = { reply: 'Something went wrong. Please try again.' }; }
+
+      removeTyping();
+      appendBubble('assistant', formatReply(data));
+    }
+  </script>
+</body>
+</html>

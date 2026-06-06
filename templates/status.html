@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lume | Wait Time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <main class="wait-shell">
+    <header class="top-nav" style="position:relative;border-radius:24px;overflow:hidden">
+      <div class="top-nav-inner">
+        <a class="brand gradient-text" href="/">Lume</a>
+        <nav class="nav-links nav-center">
+          <a id="menuLink" href="/table/5">Menu</a>
+          <a id="assistantLink" href="/assistant/5">AI Assistant</a>
+          <a href="/dashboard">Insights</a>
+        </nav>
+        <div class="nav-actions">
+          <div class="ai-badge glass-card"><span class="pulse-dot"></span> Live queue</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="wait-card glass-card">
+      <div class="ai-badge glass-card" style="justify-content:center">Smart Waiting System</div>
+      <h1 class="section-title" id="statusTitle" style="font-size:42px;margin-top:24px">Loading order</h1>
+      <p class="muted" id="statusCopy" style="max-width:620px;margin:12px auto 0;line-height:1.6">Checking the kitchen queue.</p>
+      <div><span class="eta-number" id="etaNumber">--</span></div>
+      <div class="muted">minutes estimated by trained ML model</div>
+      <div class="progress-track"><span id="progressFill"></span></div>
+      <div class="steps">
+        <div class="step" data-step="Pending">Placed</div>
+        <div class="step" data-step="Preparing">Preparing</div>
+        <div class="step" data-step="Ready">Ready</div>
+        <div class="step" data-step="Completed">Served</div>
+      </div>
+    </section>
+
+    <section class="wait-card glass-card" style="margin-top:24px;text-align:left">
+      <div class="page-heading" style="margin-bottom:10px">
+        <div>
+          <h1 style="font-size:32px">Order Details</h1>
+          <p id="modelSource">Waiting for model metadata.</p>
+        </div>
+      </div>
+      <div class="order-list" id="orderItems"></div>
+    </section>
+  </main>
+
+  <script>window.LUME_ORDER_ID = "{{ order_id }}";</script>
+  <script src="{{ url_for('static', filename='js/status.js') }}"></script>
+</body>
+</html>

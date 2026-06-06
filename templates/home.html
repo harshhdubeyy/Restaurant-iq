@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lume | AI Restaurant Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <a class="brand gradient-text" href="/">Lume</a>
+      <nav class="nav-links nav-center">
+        <a class="active" href="/">Discover</a>
+        <a href="/table/{{ table_id }}">Menu</a>
+        <a href="/assistant/{{ table_id }}">Recommendations</a>
+        <a href="/dashboard">Insights</a>
+      </nav>
+      <div class="nav-actions">
+        <img class="avatar" alt="User profile" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="ai-badge glass-card"><span class="material-symbols-outlined">auto_awesome</span> Powered by Lume</div>
+        <h1>Discover Food <br> with <span class="gradient-text">AI</span></h1>
+        <p>Smart recommendations + seamless ordering. Experience the future of culinary exploration tailored to your table, live kitchen load, and personal cravings.</p>
+        <div class="hero-actions">
+          <a class="gradient-button" href="/table/{{ table_id }}">Start Ordering</a>
+          <a class="ghost-button" href="/table/{{ table_id }}">View Menu</a>
+        </div>
+      </div>
+
+      <div class="bento-grid">
+        <article class="bento-main glass-card">
+          <img alt="AI recommended plated dish" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1400&q=85">
+          <div class="bento-caption">
+            <span class="label-caps">AI Recommendation</span>
+            <h3>Personalized Palate Mapping</h3>
+          </div>
+        </article>
+        <article class="bento-side glass-card">
+          <div class="feature-icon"><span class="material-symbols-outlined">monitoring</span></div>
+          <h3>Live Insights</h3>
+          <p class="muted">Real-time signals from order history, active kitchen queue, and ML wait prediction.</p>
+          <div class="bar-chart" aria-label="Live analytics bars">
+            <span style="height:40%"></span>
+            <span style="height:70%"></span>
+            <span style="height:55%"></span>
+            <span style="height:90%"></span>
+            <span style="height:60%"></span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="feature-grid">
+      <article class="feature-card">
+        <div class="feature-icon"><span class="material-symbols-outlined">psychology</span></div>
+        <h4>Neural Ordering</h4>
+        <p>Recommendation rankings are generated from trained menu vectors and boosted by real historical order patterns.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon"><span class="material-symbols-outlined">restaurant_menu</span></div>
+        <h4>Curated Selection</h4>
+        <p>Every dish keeps its tags, category, price, and image while the interface feels like the Stitch premium concept.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon"><span class="material-symbols-outlined">timer</span></div>
+        <h4>Smart Waiting</h4>
+        <p>Current predicted wait is <strong>{{ live.predicted_wait }} min</strong>, calculated by the trained wait-time model.</p>
+      </article>
+    </section>
+  </main>
+
+  <a class="ai-fab" href="/assistant/{{ table_id }}" title="Open AI assistant"><span class="material-symbols-outlined">smart_toy</span></a>
+</body>
+</html>

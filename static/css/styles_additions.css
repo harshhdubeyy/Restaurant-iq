@@ -1,0 +1,128 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LUME — CSS ADDITIONS
+   Paste this entire block at the TOP of your existing styles.css
+   (right after any existing :root block, or before everything else)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Font System ──────────────────────────────────────────────────────── */
+:root {
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  /* Typography scale */
+  --text-44: 44px;
+  --text-28: 28px;
+  --text-20: 20px;
+  --text-18: 18px;
+  --text-17: 17px;
+  --text-16: 16px;
+  --text-15: 15px;
+  --text-14: 14px;
+  --text-13: 13px;
+  --text-12: 12px;
+}
+
+/* Apply DM Sans globally */
+*,
+*::before,
+*::after {
+  font-family: var(--font-sans);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Monospace elements */
+code,
+pre,
+.font-mono,
+.eta-number,
+.ml-score {
+  font-family: var(--font-mono);
+}
+
+/* Heading weights — medium (500) only, no bold */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+h1 { font-size: 44px; }
+h2 { font-size: 28px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+
+p  { font-size: 17px; font-weight: 400; line-height: 1.6; }
+
+.label-caps {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.muted {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* ── 2. Navbar: brand left · tabs center · actions right ─────────────────── */
+
+/*
+  The .top-nav-inner becomes a 3-column grid:
+    [brand]   [nav tabs]   [actions]
+  Brand is pinned left, tabs are perfectly centered, actions are pinned right.
+*/
+.top-nav-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  gap: 0;
+}
+
+/* Brand — stay on the left */
+.top-nav-inner .brand {
+  justify-self: start;
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+
+/* Nav tabs — center column, centered within itself */
+.nav-center {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-center a {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Nav actions — right column, pinned to the right */
+.top-nav-inner .nav-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── 3. Remove old nav layout that used flex + gap on .top-nav-inner ──────── */
+/* Override any previous flex rules on .top-nav-inner */
+.top-nav-inner {
+  display: grid !important;
+}

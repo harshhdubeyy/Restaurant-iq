@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lume | Insights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="dashboard-shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────── -->
+  <aside class="dashboard-sidebar">
+    <div class="side-brand">
+      <a href="/" class="gradient-text" style="font-size:18px;font-weight:500;letter-spacing:-0.4px;display:block;margin-bottom:2px">Lume</a>
+      <span>Restaurant Intelligence</span>
+    </div>
+
+    <nav class="side-links">
+      <a href="/"><span class="material-symbols-outlined">home</span><span>Home</span></a>
+      <a href="/table/5"><span class="material-symbols-outlined">restaurant_menu</span><span>Menu</span></a>
+      <a href="/assistant/5"><span class="material-symbols-outlined">smart_toy</span><span>Assistant</span></a>
+      <a class="active" href="/dashboard"><span class="material-symbols-outlined">monitoring</span><span>Insights</span></a>
+      <a href="/queue"><span class="material-symbols-outlined">hourglass_empty</span><span>Queue</span></a>
+    </nav>
+
+    <div class="side-footer">
+      <a class="gradient-button" href="/assistant/5" style="text-align:center">Ask AI</a>
+    </div>
+  </aside>
+
+  <!-- ── Main ────────────────────────────────────────────────────── -->
+  <div class="dashboard-main">
+
+    <!-- Top bar -->
+    <div class="dashboard-top">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h1 style="font-size:17px;font-weight:500;letter-spacing:-0.3px;margin:0">Insights</h1>
+        <div class="ai-badge"><span class="pulse-dot"></span> Live</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:12px;color:var(--text-muted)" id="lastRefresh">Loading…</div>
+        <a class="ghost-button" href="/queue" style="padding:8px 14px;font-size:13px">
+          <span class="material-symbols-outlined" style="font-size:16px">hourglass_empty</span>Kitchen Queue
+        </a>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="dashboard-content">
+
+      <!-- ── Stat cards ─────────────────────────────────────────── -->
+      <div class="stats-grid" id="statsGrid">
+        <!-- Skeleton cards shown while loading -->
+        <div class="stat-card glass-card">
+          <div class="stat-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+          <div class="label-caps">Total Orders</div>
+          <div class="stat-value" id="statTotalOrders">—</div>
+          <div class="stat-sub" id="statOrdersSub">fetching…</div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon"><span class="material-symbols-outlined">timer</span></div>
+          <div class="label-caps">Avg Wait Time</div>
+          <div class="stat-value" id="statAvgWait">—</div>
+          <div class="stat-sub">minutes · ML model</div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="label-caps">Revenue Today</div>
+          <div class="stat-value" id="statRevenue">—</div>
+          <div class="stat-sub" id="statRevenueSub">across all orders</div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon"><span class="material-symbols-outlined">local_fire_department</span></div>
+          <div class="label-caps">Active Queue</div>
+          <div class="stat-value" id="statActive">—</div>
+          <div class="stat-sub">orders in kitchen</div>
+        </div>
+      </div>
+
+      <!-- ── Main dash grid ────────────────────────────────────── -->
+      <div class="dash-grid">
+
+        <!-- Orders table -->
+        <div class="table-card glass-card">
+          <div class="card-title">
+            <span>Recent Orders</span>
+            <a href="/queue" style="font-size:12px;font-weight:500;color:var(--primary)">View all →</a>
+          </div>
+          <div id="ordersTableWrap">
+            <table class="table" id="ordersTable">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Table</th>
+                  <th>Items</th>
+                  <th>Time</th>
+                  <th>ETA</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Loading orders…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right panel -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+
+          <!-- Top dishes -->
+          <div class="panel-card glass-card">
+            <div class="card-title">
+              <span>Top Dishes</span>
+              <span class="label-caps">by orders</span>
+            </div>
+            <div class="insight-list" id="topDishesList">
+              <div class="mini-row" style="justify-content:center;padding:16px">
+                <span style="font-size:13px;color:var(--text-muted)">Loading…</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table map -->
+          <div class="panel-card glass-card">
+            <div class="card-title">
+              <span>Table Activity</span>
+              <span class="label-caps" id="tableMapSub">—</span>
+            </div>
+            <div class="table-map" id="tableMap">
+              <!-- 10 cells rendered by JS -->
+            </div>
+          </div>
+
+          <!-- ML model status -->
+          <div class="panel-card glass-card">
+            <div class="card-title">
+              <span>ML Models</span>
+              <a href="/api/ml-status" target="_blank" style="font-size:12px;font-weight:500;color:var(--primary)">raw →</a>
+            </div>
+            <div class="insight-list" id="mlStatusList">
+              <div class="mini-row" style="justify-content:center;padding:16px">
+                <span style="font-size:13px;color:var(--text-muted)">Loading…</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /dashboard-content -->
+  </div><!-- /dashboard-main -->
+</div><!-- /dashboard-shell -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   Dashboard JS — fetches /api/analytics + /api/ml-status + /get-requests
+   and populates all UI elements.
+   ═══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  const fmt  = n  => '₹' + (n || 0).toLocaleString('en-IN');
+  const pad  = n  => String(n).padStart(2, '0');
+
+  function setNow() {
+    const d = new Date();
+    const s = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const el = document.getElementById('lastRefresh');
+    if (el) el.textContent = 'Last updated ' + s;
+  }
+
+  /* ── Populate stat cards ──────────────────────────────────────── */
+  function populateStats(orders, analytics) {
+    const active   = orders.filter(o => o.status !== 'Completed');
+    const revenue  = orders.reduce((s, o) => s + (o.items || []).reduce((ss, i) => ss + (i.price || 0) * (i.qty || 1), 0), 0);
+    const allWaits = orders.map(o => Number(o.eta)).filter(n => !isNaN(n) && n > 0);
+    const avgWait  = allWaits.length ? Math.round(allWaits.reduce((a, b) => a + b) / allWaits.length) : 0;
+
+    document.getElementById('statTotalOrders').textContent = orders.length;
+    document.getElementById('statOrdersSub').textContent   = active.length + ' active now';
+    document.getElementById('statAvgWait').textContent     = avgWait || (analytics?.predicted_wait ?? '—');
+    document.getElementById('statRevenue').textContent     = fmt(revenue);
+    document.getElementById('statRevenueSub').textContent  = orders.length + ' orders';
+    document.getElementById('statActive').textContent      = active.length;
+  }
+
+  /* ── Orders table ─────────────────────────────────────────────── */
+  function populateOrdersTable(orders) {
+    const tbody = document.getElementById('ordersTableBody');
+    if (!tbody) return;
+
+    const recent = [...orders].reverse().slice(0, 12);
+
+    if (recent.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">No orders yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = recent.map(o => {
+      const itemNames = (o.items || []).map(i => i.name).join(', ');
+      const shortItems = itemNames.length > 36 ? itemNames.slice(0, 33) + '…' : itemNames;
+      return `
+        <tr>
+          <td><a href="/order-status/${o.id}" style="color:var(--primary);font-family:var(--font-mono)">#${o.id}</a></td>
+          <td style="font-size:13px">${o.table_id}</td>
+          <td style="font-size:13px;color:var(--text-sec)">${shortItems || '—'}</td>
+          <td style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">${o.time || '—'}</td>
+          <td style="font-family:var(--font-mono);font-size:13px">${o.eta ?? '—'}</td>
+          <td><span class="status ${o.status}">${o.status}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  /* ── Top dishes ───────────────────────────────────────────────── */
+  function populateTopDishes(orders) {
+    const counts = {};
+    orders.forEach(o => {
+      (o.items || []).forEach(i => {
+        counts[i.name] = (counts[i.name] || 0) + (i.qty || 1);
+      });
+    });
+
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const list   = document.getElementById('topDishesList');
+    if (!list) return;
+
+    if (sorted.length === 0) {
+      list.innerHTML = `<div class="mini-row" style="justify-content:center;padding:16px"><span style="font-size:13px;color:var(--text-muted)">No orders yet.</span></div>`;
+      return;
+    }
+
+    const max = sorted[0][1];
+    list.innerHTML = sorted.map(([name, count], i) => `
+      <div class="mini-row" style="flex-direction:column;align-items:stretch;gap:5px;padding:10px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;font-weight:500;color:var(--text)">${name}</span>
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted)">${count}×</span>
+        </div>
+        <div style="height:4px;background:var(--surface-mid);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${Math.round((count/max)*100)}%;background:${i === 0 ? 'var(--primary)' : 'rgba(70,72,212,.35)'};border-radius:2px;transition:width .4s ease"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ── Table map ────────────────────────────────────────────────── */
+  function populateTableMap(orders) {
+    const map    = document.getElementById('tableMap');
+    const sub    = document.getElementById('tableMapSub');
+    if (!map) return;
+
+    const active = new Set(orders.filter(o => o.status !== 'Completed').map(o => String(o.table_id)));
+    const total  = 10;
+
+    if (sub) sub.textContent = active.size + ' busy';
+
+    map.innerHTML = Array.from({ length: total }, (_, i) => {
+      const n    = i + 1;
+      const busy = active.has(String(n));
+      return `
+        <div class="table-cell ${busy ? 'busy' : ''}">
+          <div style="font-size:11px;margin-bottom:2px;letter-spacing:.05em;text-transform:uppercase;color:${busy ? 'var(--primary)' : 'var(--text-muted)'}">T${n}</div>
+          ${busy ? '<div style="font-size:10px;color:var(--primary)">Active</div>' : '<div style="font-size:10px;color:var(--text-muted)">Empty</div>'}
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* ── ML model status ──────────────────────────────────────────── */
+  async function populateMLStatus() {
+    const list = document.getElementById('mlStatusList');
+    if (!list) return;
+    try {
+      const res  = await fetch('/api/ml-status');
+      const data = await res.json();
+      const rows = Object.entries(data).slice(0, 5);
+
+      if (rows.length === 0) {
+        list.innerHTML = `<div class="mini-row" style="font-size:13px;color:var(--text-muted)">No models loaded.</div>`;
+        return;
+      }
+
+      list.innerHTML = rows.map(([key, val]) => `
+        <div class="mini-row">
+          <span style="font-size:13px;color:var(--text-sec)">${key}</span>
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--text)">${typeof val === 'object' ? JSON.stringify(val).slice(0,40) : val}</span>
+        </div>
+      `).join('');
+    } catch (_) {
+      list.innerHTML = `<div class="mini-row" style="font-size:13px;color:var(--text-muted)">Could not load model status.</div>`;
+    }
+  }
+
+  /* ── Main load ────────────────────────────────────────────────── */
+  async function load() {
+    try {
+      const [ordersRes, analyticsRes] = await Promise.all([
+        fetch('/get-requests'),
+        fetch('/api/analytics')
+      ]);
+      const orders    = await ordersRes.json();
+      const analytics = await analyticsRes.json();
+
+      populateStats(orders, analytics);
+      populateOrdersTable(orders);
+      populateTopDishes(orders);
+      populateTableMap(orders);
+      setNow();
+    } catch (err) {
+      console.error('Dashboard load error:', err);
+    }
+  }
+
+  load();
+  populateMLStatus();
+  setInterval(load, 20000); // auto-refresh every 20s
+})();
+</script>
+</body>
+</html>

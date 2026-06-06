@@ -1,0 +1,50 @@
+============================================================
+   LUME RESTAURANT AI — MODEL ACCURACY REPORT
+   Generated automatically from training data
+============================================================
+
+── MODEL 1: Wait-Time Predictor (RandomForestRegressor) ──
+   Training samples : 1920
+   Test samples     : 480
+   R² Score         : 0.9641  (96.4% variance explained)
+   Mean Abs. Error  : 1.82 minutes
+   Features used    : hour, day_of_week, active_orders,
+                      active_items, order_size, is_peak, is_weekend
+
+── MODEL 2: Demand Predictor (GradientBoostingRegressor) ──
+   Training samples : 3200
+   Test samples     : 800
+   R² Score         : 0.9394  (93.9% variance explained)
+   Mean Abs. Error  : 1.02 orders
+   Features used    : hour_of_day, day_of_week, month
+
+── MODEL 3: Intent Classifier (Logistic Regression + TF-IDF) ──
+   Training samples : 88
+   Test samples     : 22
+   Accuracy         : 0.7727  (77.3%)
+   Classes          : greeting, recommendation, diet_filter,
+                      wait_time, order
+
+   Per-class report:
+                   precision    recall  f1-score   support
+      diet_filter       0.71      1.00      0.83         5
+         greeting       0.67      1.00      0.80         2
+            order       0.80      1.00      0.89         4
+   recommendation       0.83      0.71      0.77         7
+        wait_time       1.00      0.25      0.40         4
+         accuracy                           0.77        22
+        macro avg       0.80      0.79      0.74        22
+     weighted avg       0.82      0.77      0.74        22
+
+── MODEL 4: TF-IDF Recommendation Engine ──
+   Type             : Content-based filtering (unsupervised)
+   Vocabulary size  : Trained on 15 menu items
+   Similarity metric: Cosine similarity
+   Manual accuracy  : 18/20 test queries returned correct
+                      top-1 dish = 90.0% relevance
+   No train/test split needed (retrieval, not classification)
+
+============================================================
+   ALL MODELS TRAINED ON LOCAL MACHINE — NO EXTERNAL API
+   Models saved as .joblib files in /models/ folder
+============================================================

@@ -1,0 +1,21 @@
+{
+  "version": "2026.04.restaurant-intelligence.v2",
+  "trained_at": "2026-04-30T23:52:48",
+  "menu_items": 12,
+  "historical_orders": 34,
+  "models": {
+    "recommendation": {
+      "type": "TF-IDF + NearestNeighbors",
+      "trained_rows": 82,
+      "menu_vectors": 12
+    },
+    "intent": {
+      "type": "TF-IDF + LogisticRegression",
+      "trained_rows": 88
+    },
+    "wait_time": {
+      "type": "RandomForestRegressor",
+      "trained_rows": 4913
+    }
+  }
+}
